@@ -18,3 +18,5 @@ Update: Increased Planet Size to 500. Whoops.
  - Soil Pile is free, click the vein bury tool.
 
  Good luck!
+![CloseUp](https://github.com/innominata/Spaghetti-Generator/blob/main/spaghetti.jpg?raw=true "close")
+![MapView](https://github.com/innominata/Spaghetti-Generator/blob/main/spaghetti2.jpg?raw=true "far")

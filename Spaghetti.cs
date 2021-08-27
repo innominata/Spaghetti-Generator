@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace GalacticScale.Generators
 {   
-    [BepInPlugin("dsp.galactic-scale.2.spaghetti", "Galactic Scale 2 Spaghetti Mod", "1.0.0.0")]
+    [BepInPlugin("dsp.galactic-scale.2.spaghetti", "Galactic Scale 2 Spaghetti Mod", "1.0.0.4")]
     [BepInDependency("dsp.galactic-scale.2")]
     public class Spaghetti : BaseUnityPlugin, iConfigurableGenerator
     {
@@ -14,11 +14,18 @@ namespace GalacticScale.Generators
         public string Name => "Spaghetti";
         public string Author => "innominata";
         public string Description => "Spaghetti Generator Custom Mission";
-        public string Version => "0.0";
+        public string Version => "1.0.0.4";
         public string GUID => "space.customizing.generators.spaghetti";
         public new GSGeneratorConfig Config => config; // Return our own generator config when asked, instead of using default config
         public GSOptions Options => options; // Likewise for options
         public bool sauce => preferences.GetBool("sauce", true);
+
+        public bool warned
+        {
+            get { return preferences.GetBool("warned", false); }
+            set { preferences.Set("warned", value);}
+        }
+
         public void Init()
         {
             GS2.Log("Initializing Spaghetti Generator"); // Use Galactic Scales Log system for debugging purposes.
@@ -221,15 +228,24 @@ namespace GalacticScale.Generators
             Harmony.CreateAndPatchAll(typeof(Spaghetti));
         }
 
-        public static bool Warned = false;
+
         [HarmonyPostfix, HarmonyPatch(typeof(UIBuildMenu), "OnVeinBuriedClick")]
         public static void OnVeinBuriedClick(ref UIBuildMenu __instance)
         {
-            if (GS2.ActiveGenerator.GUID != "space.customizing.generators.spaghetti") return;
+            var Gen = GS2.GetGeneratorByID("space.customizing.generators.spaghetti") as Spaghetti;
+            
+            
+            if (GSSettings.Stars[0].Name == "Aglio" && GSSettings.Instance.generatorGUID == null) GSSettings.Instance.generatorGUID = "space.customizing.generators.spaghetti";
+            if (GSSettings.Instance.generatorGUID != "space.customizing.generators.spaghetti") return;
             __instance.reformTool.buryVeins = false;
             GS2.Log("Click");
-            if (!Warned) UIMessageBox.Show("Spaghetti".Translate(), "It would be too easy if you could just bury veins!".Translate(), "I agree!".Translate(), 0);
-            Warned = true;
+            if (!Gen.warned)
+            {
+                UIMessageBox.Show("Spaghetti".Translate(), "It would be too easy if you could just bury veins!".Translate(), "I agree!".Translate(), 0);
+                Gen.warned = true;
+                GS2.SavePreferences();
+            }
+            
             GameMain.mainPlayer.sandCount += 99999;
         }
         
